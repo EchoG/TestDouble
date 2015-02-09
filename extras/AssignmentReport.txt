@@ -1,0 +1,20 @@
+ASSIGNMENT REPORT - TEST DOUBLES
+
+Name: 
+Andrew ID:
+
+1. Why were test doubles necessary in this assignment? 
+
+2. What types of test doubles did you use? 
+
+3. What were the advantages and advantages of the different kinds of test doubles
+you used? Did you observe any differences in their ability to reveal faults? 
+
+4. List the faults found in the code or tests.
+
+// use bullet list
+
+5. What lessons you would take away from this assignment. 
+
+
+/** This report should be about one page long. **/
