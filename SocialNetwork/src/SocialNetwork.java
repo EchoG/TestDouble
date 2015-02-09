@@ -10,6 +10,11 @@ public class SocialNetwork implements ISocialNetwork {
 	
 	public SocialNetwork() {
 	}
+	
+	//T1
+	public SocialNetwork(IAccountDAO accountDAO) {
+        this.accountDAO = accountDAO;
+    }
 
 	private class MyAccount extends Account {
 		
@@ -94,6 +99,8 @@ public class SocialNetwork implements ISocialNetwork {
 			accountDAO.update(friend);
 		}
 		accountDAO.update(currentUser);
+		//not sure
+		accountDAO.delete(currentUser);
 		currentUser = null;
 	}
 	

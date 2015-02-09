@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -16,29 +19,43 @@ public class AccountDAOFake implements IAccountDAO {
 	 * that need an AccountDAO as a collaborator. 
 	 */
 		
+	private Set<Account> accounts = new HashSet<Account>();
+	
 	public boolean isFullMock() {  // really, I should call this isFullFake()
 		return true;
 	}
 
 	public void save(Account member) {
 		// implement this method
+		if(findByUserName(member.getUserName()) == null){
+			accounts.add(member);
+		}
 	}
 
 	public Account findByUserName(String userName)  {
-		return null;
 		// implement this method
+		for(Account acc : accounts){
+			if(acc.getUserName().equals(userName)){
+				return acc;
+			}
+		}
+		return null;
 	}
 	
 	public Set<Account> findAll()  {
-		return null;
+		return accounts;
 		// implement this method
 	}
 
 	public void delete(Account member) {
+		accounts.remove(member);
 		// implement this method
 	}
 
 	public void update(Account member) {
+		Account oldMember = findByUserName(member.getUserName());
+		accounts.remove(oldMember);
+		accounts.add(member);
 		// implement this method
 	}
 

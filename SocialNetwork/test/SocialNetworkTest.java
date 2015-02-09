@@ -12,7 +12,8 @@ import static org.mockito.Mockito.*;
 
 public class SocialNetworkTest {
 	
-	ISocialNetwork sn = new SocialNetwork();
+	IAccountDAO accountDAOFake = new AccountDAOFake();
+	ISocialNetwork sn = new SocialNetwork(accountDAOFake);
 	Account m, m1, m2, m3, m4;
 	Set<Account> all = new HashSet<Account>();
 
@@ -191,6 +192,7 @@ public class SocialNetworkTest {
 		sn.leave();
 		// might have to do additional checking if using a Mockito mock
 		sn.login(m2);
+		System.out.println(sn.hasMember(m1.getUserName()));
 		assertFalse(sn.hasMember(m1.getUserName()));
 	}	
 	
