@@ -12,8 +12,17 @@ import static org.mockito.Mockito.*;
 
 public class SocialNetworkTest {
 	
-	IAccountDAO accountDAOFake = new AccountDAOFake();
-	ISocialNetwork sn = new SocialNetwork(accountDAOFake);
+	//IAccountDAO accountDAOFake = new AccountDAOFake();
+	//ISocialNetwork sn = new SocialNetwork(accountDAOFake);
+	
+	AccountDAO accountDAOMock = mock(AccountDAO.class);
+//	ISocialNetwork sn = new SocialNetwork(accountDAOMock);
+	
+	IAccountDAO accountDAO = new AccountDAOFake();
+	IAccountDAO spy = spy(accountDAO);
+	ISocialNetwork sn = new SocialNetwork(spy);
+	
+	//ISocialNetwork sn = new SocialNetwork();
 	Account m, m1, m2, m3, m4;
 	Set<Account> all = new HashSet<Account>();
 
@@ -25,6 +34,11 @@ public class SocialNetworkTest {
 		m2 = sn.join("Serra");
 		m3 = sn.join("Dean");
 		m4 = sn.join("Hasan");
+		all.add(m);
+		all.add(m1);
+		all.add(m2);
+		all.add(m3);
+		all.add(m4);
 		// ... other test accounts/members you need to create ... 
 		
 		/* you can set expectation for mock objects here or in the tests
@@ -38,6 +52,10 @@ public class SocialNetworkTest {
 			// with when..then clauses, etc. 
 			//
 		*/
+		when(accountDAOMock.findByUserName("John")).thenReturn(m);
+		when(accountDAOMock.findByUserName("Hakan")).thenReturn(m1);
+		when(accountDAOMock.findByUserName("Serra")).thenReturn(m2);
+		when(accountDAOMock.findByUserName("Dean")).thenReturn(m3);
 		}
 
 	@After
@@ -87,6 +105,7 @@ public class SocialNetworkTest {
 	public void canListMembers() throws NoUserLoggedInException,
 			UserNotFoundException {
 		sn.login(m);
+		when(accountDAOMock.findAll()).thenReturn(all);
 		Set<String> members = sn.listMembers();
 		assertTrue(members.contains(m1.getUserName()));
 		assertTrue(members.contains(m2.getUserName()));
@@ -110,6 +129,7 @@ public class SocialNetworkTest {
 		assertTrue(m1.getFriends().isEmpty());
 		assertTrue(m2.getFriends().isEmpty());
 		sn.login(m1);
+		
 		sn.sendFriendRequestTo(m2.getUserName());
 		m2 = sn.login(m2);
 		sn.acceptFriendRequestFrom(m1.getUserName());
@@ -141,6 +161,7 @@ public class SocialNetworkTest {
 	@Test(expected = UserExistsException.class)
 	public void canNotJoinSocialNetworkAgain() throws UserExistsException {
 		sn.join("Hakan");
+		
 	}
 
 	@Test
@@ -148,6 +169,7 @@ public class SocialNetworkTest {
 			throws UserExistsException, UserNotFoundException,
 			NoUserLoggedInException {
 		sn.login(m1);
+		when(accountDAOMock.findByUserName("Serra")).thenReturn(m2);
 		sn.block(m2.getUserName());
 		sn.login(m2);
 		assertFalse(sn.hasMember(m1.getUserName()));
@@ -192,7 +214,7 @@ public class SocialNetworkTest {
 		sn.leave();
 		// might have to do additional checking if using a Mockito mock
 		sn.login(m2);
-		System.out.println(sn.hasMember(m1.getUserName()));
+		when(accountDAOMock.findByUserName("Hakan")).thenReturn(null);
 		assertFalse(sn.hasMember(m1.getUserName()));
 	}	
 	
@@ -208,29 +230,89 @@ public class SocialNetworkTest {
 	
 	@Test public void newAccountsAreAlwaysSaved() throws UserExistsException {
 		// make sure that when a new member account is created, it will be persisted 
-		fail();
+		//fail();
+		Account m5 = sn.join("Chenran");
+		
+		verify(spy).save(m5);
 	}
 	
 	@Test public void willAttemptToPersistSendingAFriendRequest() throws UserNotFoundException, UserExistsException, NoUserLoggedInException {
 		// make sure that when a logged-in member issues a friend request, any changes to the affected accounts will be persisted
-		fail();	}
+		//fail();
+		assertTrue(m2.whoWantsToBeFriends().isEmpty());
+		sn.login(m1);
+		verify(spy, times(3)).findByUserName("Hakan");
+		sn.sendFriendRequestTo(m2.getUserName());
+		verify(spy, times(3)).findByUserName("Serra");
+		
+		assertTrue(m2.whoWantsToBeFriends().contains(m1.getUserName()));
+		assertTrue(m1.whoDidIAskToBefriend().contains(m2.getUserName()));
+	}
 	
 	@Test public void willAttemptToPersistAcceptanceOfFriendRequest() throws UserNotFoundException, UserExistsException, NoUserLoggedInException {
 		// make sure that when a logged-in member issues a friend request, any changes to the affected accounts will be persisted
-		fail();	}
+		//fail();	
+		assertTrue(m1.getFriends().isEmpty());
+		assertTrue(m2.getFriends().isEmpty());
+		sn.login(m1);
+		sn.sendFriendRequestTo(m2.getUserName());
+		m2 = sn.login(m2);
+		sn.acceptFriendRequestFrom(m1.getUserName());
+		m1 = sn.login(m1);
+		
+		verify(spy, times(7)).findByUserName("Hakan");
+		verify(spy, times(5)).findByUserName("Serra");
+		assertTrue(m2.getFriends().contains(m1.getUserName()));
+		assertTrue(m1.getFriends().contains(m2.getUserName()));
+	}
 	
 	@Test public void willAttemptToPersistRejectionOfFriendRequest() throws UserNotFoundException, UserExistsException, NoUserLoggedInException {
 		// make sure that when a logged-in member rejects a friend request, any changes to the affected accounts will be persisted
-		fail();	}
+		//fail();
+		assertTrue(m1.getFriends().isEmpty());
+		assertTrue(m2.getFriends().isEmpty());
+		sn.login(m1);
+		sn.sendFriendRequestTo(m2.getUserName());
+		sn.login(m2);
+		sn.rejectFriendRequestFrom(m1.getUserName());
+		
+		verify(spy, times(6)).findByUserName("Hakan");
+		verify(spy, times(4)).findByUserName("Serra");
+		assertFalse(m2.whoWantsToBeFriends().contains(m1.getUserName()));
+		assertFalse(m1.whoDidIAskToBefriend().contains(m2.getUserName()));
+	}
 	
 	@Test public void willAttemptToPersistBlockingAMember() throws UserNotFoundException, UserExistsException, NoUserLoggedInException {
 		// make sure that when a logged-in member blocks another member, any changes to the affected accounts will be persisted
-		fail();	}
+		//fail();	
+		sn.login(m1);
+		sn.block(m2.getUserName());
+		sn.login(m2);
+		
+		Set<String> allMembers = sn.listMembers();
+		
+		verify(spy, times(4)).findByUserName("Hakan");
+		verify(spy, times(4)).findByUserName("Serra");
+		verify(spy).findAll();
+		assertFalse(allMembers.contains(m1.getUserName()));
+	}
 		
 	@Test public void willAttemptToPersistLeavingSocialNetwork() throws UserExistsException, UserNotFoundException, NoUserLoggedInException {
 		// make sure that when a logged-in member leaves the social network, his account will be permanenlty deleted and  
 		// any changes to the affected accounts will be persisted
-		fail();	
+		//fail();	
+		
+		sn.login(m1);
+		sn.leave();
+		// might have to do additional checking if using a Mockito mock
+		sn.login(m2);
+		
+		verify(spy, times(4)).findByUserName("Hakan");
+		verify(spy, times(3)).findByUserName("Serra");
+		verify(spy).update(m1);
+		verify(spy).delete(m1);
+		
+		assertFalse(sn.hasMember(m1.getUserName()));
 	}
 	
 	
