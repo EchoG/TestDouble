@@ -1,20 +1,31 @@
 ASSIGNMENT REPORT - TEST DOUBLES
 
-Name: 
-Andrew ID:
+Name: Chenran Gong
+Andrew ID:cgong
 
 1. Why were test doubles necessary in this assignment? 
+Because the database is unavailable in this assignment and test double can simulate lack of database connection, isolate the code test, focus our test on real object, speed up test execution and gain access to hidden information.
 
 2. What types of test doubles did you use? 
+Fake object, Mock object and Test spy.
 
 3. What were the advantages and advantages of the different kinds of test doubles
 you used? Did you observe any differences in their ability to reveal faults? 
+Fake Advantage: Fake can simulate a persistence object and behaves like a real object that access a database but much faster. Also, fake can reduce the dependency of the object to other objects.
+Fake Disadvantage: Fake cannot verify internal indirect input and output.  
+Mock Advantage: Mock can be configured at runtime to behave in a certain way under certain circumstances and can be precise by failing a test in a timely fashion when an unexpected event happens. Mock can also behave like a spy or a fake.
+Mock Disadvantage: Mock is difficult to implement without a mocking framework because we should be able to specify behavior at run-time. 
+Spy Advantage: When the state of a collaborator is a secret, spy can help access that state to test an object.
+Spy Disadvantage: Test spy can only obtain internal operations and invocations but cannot verify the operations or invocations are correct or not.
 
 4. List the faults found in the code or tests.
-
-// use bullet list
+•	In the method “sendFriendRequestTo” in SocialNetwork.java, there is no update operation to toMember who the currentUser sends friend request to.
+•	In the method “block” in SocialNetwork.java, there is no update operation to member who is blocked.
+•	In the method “unBlock” in SocialNetwork.java, there is no update operation to member who is unblocked.
+•	In the “leave” method in SocialNetwork.java, it does not delete the pendingRequests and pendingResponses of the currentUser.
+•	In the SocialNetworkTest.java, it lacks some “@Test” and the “assertNotEquals()” causes complier problems in the web-cat. And “assertFalse()” can solve them.
 
 5. What lessons you would take away from this assignment. 
-
-
-/** This report should be about one page long. **/
+•	Understand deeply to the lecture slides and instruction before writing code.
+•	After this assignment, I learnt how to use fake, mock and spy correctly and how to debug them in TDD development in some specific situation.
+•	When using spy, I should add time attribute to verify the invocation times.

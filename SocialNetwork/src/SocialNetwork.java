@@ -99,7 +99,6 @@ public class SocialNetwork implements ISocialNetwork {
 			accountDAO.update(friend);
 		}
 		accountDAO.update(currentUser);
-		//not sure
 		accountDAO.delete(currentUser);
 		currentUser = null;
 	}
