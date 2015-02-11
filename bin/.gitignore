@@ -1,0 +1,12 @@
+/Account.class
+/AccountDAO.class
+/AccountDAOFake.class
+/DAOFactory.class
+/IAccountDAO.class
+/ISocialNetwork.class
+/NoUserLoggedInException.class
+/SocialNetwork$MyAccount.class
+/SocialNetwork.class
+/SocialNetworkTest.class
+/UserExistsException.class
+/UserNotFoundException.class
